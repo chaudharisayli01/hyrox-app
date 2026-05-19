@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏆 Hyrox Training Bible</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/recharts@2.10.3/dist/Recharts.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+            min-height: 100vh;
+            padding: 1rem;
+        }
+        
+        #root {
+            width: 100%;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+        
+        .container {
+            width: 100%;
+        }
+        
+        .header {
+            text-align: left;
+            margin-bottom: 1.5rem;
+        }
+        
+        .header h1 {
+            font-size: 2.25rem;
+            font-weight: bold;
+            color: #111827;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            color: #4b5563;
+            font-size: 0.95rem;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 0.5rem;
+            overflow-x: auto;
+            flex-wrap: wrap;
+        }
+        
+        .tab-button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+        
+        .tab-button.active {
+            background-color: #4f46e5;
+            color: white;
+        }
+        
+        .tab-button.inactive {
+            background-color: #e5e7eb;
+            color: #374151;
+        }
+        
+        .tab-button:hover {
+            opacity: 0.9;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .metric-card {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .metric-label {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .metric-value {
+            font-size: 1.875rem;
+            font-weight: bold;
+            color: #4f46e5;
+        }
+        
+        .button {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background-color: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 1.5rem;
+            transition: background-color 0.2s;
+            font-size: 1rem;
+        }
+        
+        .button:hover {
+            background-color: #4338ca;
+        }
+        
+        .button.secondary {
+            background-color: #10b981;
+        }
+        
+        .button.secondary:hover {
+            background-color: #059669;
+        }
+        
+        .button.danger {
+            background-color: #ef4444;
+            width: auto;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            margin: 0;
+        }
+        
+        .form {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+        
+        .form h3 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #111827;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: #374151;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-family: inherit;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 4rem;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+        
+        .form-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .form-buttons button {
+            padding: 0.5rem;
+            border: none;
+            border-radius: 0.375rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+        
+        .log-card {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+        }
+        
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 0.75rem;
+        }
+        
+        .log-badges {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.5rem;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .badge-blue { background-color: #dbeafe; color: #0c4a6e; }
+        .badge-green { background-color: #d1fae5; color: #065f46; }
+        .badge-red { background-color: #fee2e2; color: #7f1d1d; }
+        .badge-purple { background-color: #ede9fe; color: #5b21b6; }
+        .badge-orange { background-color: #fef3c7; color: #92400e; }
+        .badge-gray { background-color: #f3f4f6; color: #374151; }
+        
+        .log-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.875rem;
+        }
+        
+        .stat {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.75rem;
+        }
+        
+        .stat-value {
+            font-weight: bold;
+            color: #111827;
+            font-size: 1rem;
+        }
+        
+        .log-notes {
+            color: #6b7280;
+            font-size: 0.875rem;
+            font-style: italic;
+            margin-top: 0.5rem;
+        }
+        
+        .delete-button {
+            background: none;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.25rem;
+            padding: 0;
+        }
+        
+        .delete-button:hover {
+            color: #991b1b;
+        }
+        
+        .warning-banner {
+            background-color: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 0.375rem;
+        }
+        
+        .warning-banner p {
+            color: #991b1b;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .warning-banner small {
+            color: #dc2626;
+            display: block;
+            margin-bottom: 0.75rem;
+        }
+        
+        .zone-card {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-left: 4px solid;
+            margin-bottom: 1rem;
+        }
+        
+        .zone-card h4 {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+        
+        .zone-card p {
+            font-size: 0.875rem;
+            color: #4b5563;
+            margin-bottom: 0.25rem;
+        }
+        
+        .gradient-card {
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            color: white;
+            margin-bottom: 1.5rem;
+        }
+        
+        .gradient-card h4 {
+            font-weight: bold;
+            margin-bottom: 1rem;
+            font-size: 1.125rem;
+        }
+        
+        .gradient-card p {
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .metrics-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .tabs {
+                gap: 0.25rem;
+            }
+            
+            .tab-button {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.75rem;
+            }
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        function HyroxApp() {
+            const [activeTab, setActiveTab] = useState('training');
+            const [logs, setLogs] = useState([]);
+            const [nutritionLogs, setNutritionLogs] = useState([]);
+            const [recoveryLogs, setRecoveryLogs] = useState([]);
+            const [showTrainingForm, setShowTrainingForm] = useState(false);
+            const [showNutritionForm, setShowNutritionForm] = useState(false);
+            const [showRecoveryForm, setShowRecoveryForm] = useState(false);
+            const [showHRSetup, setShowHRSetup] = useState(false);
+            const [currentDate, setCurrentDate] = useState(new Date().toISOString().split('T')[0]);
+
+            const [hrConfig, setHrConfig] = useState({
+                maxHR: 190,
+                restingHR: 60,
+                age: 28,
+                method: 'measured'
+            });
+
+            const [trainingFormData, setTrainingFormData] = useState({
+                date: currentDate,
+                activityType: 'running',
+                workoutType: 'easy-run',
+                distance: '',
+                time: '',
+                avgHeartRate: '',
+                maxHeartRate: '',
+                effort: '5',
+                notes: '',
+                location: ''
+            });
+
+            const [nutritionFormData, setNutritionFormData] = useState({
+                date: currentDate,
+                mealType: 'breakfast',
+                foodItems: '',
+                calories: '',
+                protein: '',
+                carbs: '',
+                fats: '',
+                notes: ''
+            });
+
+            const [recoveryFormData, setRecoveryFormData] = useState({
+                date: currentDate,
+                sleepHours: '8',
+                sleepQuality: '7',
+                restingHeartRate: '',
+                soreness: '3',
+                mood: '7',
+                stressLevel: '5',
+                notes: ''
+            });
+
+            // Load from localStorage
+            useEffect(() => {
+                try {
+                    const savedLogs = localStorage.getItem('hyrox-training-logs');
+                    const savedNutrition = localStorage.getItem('hyrox-nutrition-logs');
+                    const savedRecovery = localStorage.getItem('hyrox-recovery-logs');
+                    const savedHR = localStorage.getItem('hyrox-hr-config');
+                    
+                    if (savedLogs) setLogs(JSON.parse(savedLogs));
+                    if (savedNutrition) setNutritionLogs(JSON.parse(savedNutrition));
+                    if (savedRecovery) setRecoveryLogs(JSON.parse(savedRecovery));
+                    if (savedHR) setHrConfig(JSON.parse(savedHR));
+                } catch (e) {
+                    console.log('Loading data...');
+                }
+            }, []);
+
+            // Save to localStorage
+            useEffect(() => {
+                try {
+                    localStorage.setItem('hyrox-training-logs', JSON.stringify(logs));
+                    localStorage.setItem('hyrox-nutrition-logs', JSON.stringify(nutritionLogs));
+                    localStorage.setItem('hyrox-recovery-logs', JSON.stringify(recoveryLogs));
+                    localStorage.setItem('hyrox-hr-config', JSON.stringify(hrConfig));
+                } catch (e) {
+                    console.log('Saving data...');
+                }
+            }, [logs, nutritionLogs, recoveryLogs, hrConfig]);
+
+            // Calculate HR Zones
+            const getHRZones = () => {
+                const maxHR = hrConfig.maxHR;
+                const reserve = maxHR - hrConfig.restingHR;
+                
+                return {
+                    zone1: { name: 'Recovery', min: Math.round(hrConfig.restingHR + reserve * 0.5), max: Math.round(hrConfig.restingHR + reserve * 0.6), color: '#3b82f6', bgColor: '#dbeafe', percent: '50-60%' },
+                    zone2: { name: 'Aerobic Base', min: Math.round(hrConfig.restingHR + reserve * 0.6), max: Math.round(hrConfig.restingHR + reserve * 0.7), color: '#10b981', bgColor: '#d1fae5', percent: '60-70%' },
+                    zone3: { name: 'Tempo', min: Math.round(hrConfig.restingHR + reserve * 0.7), max: Math.round(hrConfig.restingHR + reserve * 0.8), color: '#f59e0b', bgColor: '#fef3c7', percent: '70-80%' },
+                    zone4: { name: 'Threshold', min: Math.round(hrConfig.restingHR + reserve * 0.8), max: Math.round(hrConfig.restingHR + reserve * 0.9), color: '#ef4444', bgColor: '#fee2e2', percent: '80-90%' },
+                    zone5: { name: 'VO2 Max', min: Math.round(hrConfig.restingHR + reserve * 0.9), max: maxHR, color: '#991b1b', bgColor: '#fecaca', percent: '90-100%' }
+                };
+            };
+
+            const getZoneFromHR = (avgHR) => {
+                if (!avgHR) return null;
+                const zones = getHRZones();
+                if (avgHR >= zones.zone5.min) return zones.zone5;
+                if (avgHR >= zones.zone4.min) return zones.zone4;
+                if (avgHR >= zones.zone3.min) return zones.zone3;
+                if (avgHR >= zones.zone2.min) return zones.zone2;
+                if (avgHR >= zones.zone1.min) return zones.zone1;
+                return null;
+            };
+
+            const calculatePace = (distance, timeMinutes) => {
+                if (distance <= 0) return '0:00';
+                const paceMinutes = timeMinutes / distance;
+                const minutes = Math.floor(paceMinutes);
+                const seconds = Math.round((paceMinutes - minutes) * 60);
+                return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            };
+
+            const handleTrainingSubmit = (e) => {
+                e.preventDefault();
+                if (!trainingFormData.distance || !trainingFormData.time) {
+                    alert('Please fill in distance and time');
+                    return;
+                }
+
+                const pace = calculatePace(parseFloat(trainingFormData.distance), parseInt(trainingFormData.time));
+                const avgHR = trainingFormData.avgHeartRate ? parseInt(trainingFormData.avgHeartRate) : null;
+                const zone = avgHR ? getZoneFromHR(avgHR) : null;
+
+                const newLog = {
+                    id: Date.now(),
+                    ...trainingFormData,
+                    distance: parseFloat(trainingFormData.distance),
+                    time: parseInt(trainingFormData.time),
+                    pace: pace,
+                    avgHeartRate: avgHR,
+                    maxHeartRate: trainingFormData.maxHeartRate ? parseInt(trainingFormData.maxHeartRate) : null,
+                    effort: parseInt(trainingFormData.effort),
+                    zone: zone ? zone.name : null,
+                    zoneColor: zone ? zone.color : null
+                };
+
+                setLogs([newLog, ...logs]);
+                setTrainingFormData({
+                    date: currentDate,
+                    activityType: 'running',
+                    workoutType: 'easy-run',
+                    distance: '',
+                    time: '',
+                    avgHeartRate: '',
+                    maxHeartRate: '',
+                    effort: '5',
+                    notes: '',
+                    location: ''
+                });
+                setShowTrainingForm(false);
+            };
+
+            const handleNutritionSubmit = (e) => {
+                e.preventDefault();
+                if (!nutritionFormData.foodItems) {
+                    alert('Please enter food items');
+                    return;
+                }
+
+                const newLog = {
+                    id: Date.now(),
+                    ...nutritionFormData,
+                    calories: nutritionFormData.calories ? parseFloat(nutritionFormData.calories) : 0,
+                    protein: nutritionFormData.protein ? parseFloat(nutritionFormData.protein) : 0,
+                    carbs: nutritionFormData.carbs ? parseFloat(nutritionFormData.carbs) : 0,
+                    fats: nutritionFormData.fats ? parseFloat(nutritionFormData.fats) : 0
+                };
+
+                setNutritionLogs([newLog, ...nutritionLogs]);
+                setNutritionFormData({
+                    date: currentDate,
+                    mealType: 'breakfast',
+                    foodItems: '',
+                    calories: '',
+                    protein: '',
+                    carbs: '',
+                    fats: '',
+                    notes: ''
+                });
+                setShowNutritionForm(false);
+            };
+
+            const handleRecoverySubmit = (e) => {
+                e.preventDefault();
+                const newLog = {
+                    id: Date.now(),
+                    ...recoveryFormData,
+                    sleepHours: parseFloat(recoveryFormData.sleepHours),
+                    sleepQuality: parseInt(recoveryFormData.sleepQuality),
+                    restingHeartRate: recoveryFormData.restingHeartRate ? parseInt(recoveryFormData.restingHeartRate) : null,
+                    soreness: parseInt(recoveryFormData.soreness),
+                    mood: parseInt(recoveryFormData.mood),
+                    stressLevel: parseInt(recoveryFormData.stressLevel)
+                };
+
+                setRecoveryLogs([newLog, ...recoveryLogs]);
+                setRecoveryFormData({
+                    date: currentDate,
+                    sleepHours: '8',
+                    sleepQuality: '7',
+                    restingHeartRate: '',
+                    soreness: '3',
+                    mood: '7',
+                    stressLevel: '5',
+                    notes: ''
+                });
+                setShowRecoveryForm(false);
+            };
+
+            const deleteLog = (id, type) => {
+                if (window.confirm('Delete this entry?')) {
+                    if (type === 'training') setLogs(logs.filter(log => log.id !== id));
+                    if (type === 'nutrition') setNutritionLogs(nutritionLogs.filter(log => log.id !== id));
+                    if (type === 'recovery') setRecoveryLogs(recoveryLogs.filter(log => log.id !== id));
+                }
+            };
+
+            const getDailyMacros = (date) => {
+                const dayLogs = nutritionLogs.filter(log => log.date === date);
+                return {
+                    calories: dayLogs.reduce((sum, log) => sum + (log.calories || 0), 0),
+                    protein: dayLogs.reduce((sum, log) => sum + (log.protein || 0), 0),
+                    carbs: dayLogs.reduce((sum, log) => sum + (log.carbs || 0), 0),
+                    fats: dayLogs.reduce((sum, log) => sum + (log.fats || 0), 0)
+                };
+            };
+
+            const getBest1km = () => {
+                const repeat1km = logs
+                    .filter(log => log.workoutType === 'repeat-1km' && log.distance === 1)
+                    .sort((a, b) => {
+                        const paceA = parseFloat(a.pace.split(':')[0]) + parseFloat(a.pace.split(':')[1]) / 60;
+                        const paceB = parseFloat(b.pace.split(':')[0]) + parseFloat(b.pace.split(':')[1]) / 60;
+                        return paceA - paceB;
+                    });
+                return repeat1km.length > 0 ? repeat1km[0] : null;
+            };
+
+            const todayMacros = getDailyMacros(currentDate);
+            const best1km = getBest1km();
+            const zones = getHRZones();
+
+            const typeColors = {
+                'easy-run': 'badge-blue',
+                'tempo-run': 'badge-orange',
+                'interval': 'badge-red',
+                'repeat-1km': 'badge-purple',
+                'long-run': 'badge-green',
+                'strength': 'badge-orange',
+                'hyrox-sim': 'badge-red'
+            };
+
+            return (
+                <div className="container">
+                    {/* Header */}
+                    <div className="header">
+                        <h1>🏆 Hyrox Training Bible</h1>
+                        <p>Complete training, nutrition & recovery tracking with HR zones</p>
+                    </div>
+
+                    {/* HR Setup Banner */}
+                    {!hrConfig.maxHR && (
+                        <div className="warning-banner">
+                            <p>❤️ HR Zone Setup Required</p>
+                            <small>Set your max heart rate for accurate zone calculations</small>
+                            <button className="button secondary" style={{marginBottom: 0}} onClick={() => setShowHRSetup(true)}>
+                                Setup HR Zones
+                            </button>
+                        </div>
+                    )}
+
+                    {/* HR Setup Modal */}
+                    {showHRSetup && (
+                        <div style={{position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: '1rem'}}>
+                            <div className="form" style={{maxWidth: '28rem', width: '100%'}}>
+                                <h3>❤️ Heart Rate Zone Setup</h3>
+                                
+                                <div className="form-group">
+                                    <label>Method</label>
+                                    <div style={{display: 'flex', gap: '1rem'}}>
+                                        <button 
+                                            style={{flex: 1, padding: '0.5rem', backgroundColor: hrConfig.method === 'measured' ? '#4f46e5' : '#e5e7eb', color: hrConfig.method === 'measured' ? 'white' : '#374151', border: 'none', borderRadius: '0.375rem', fontWeight: 600, cursor: 'pointer'}}
+                                            onClick={() => setHrConfig({...hrConfig, method: 'measured'})}
+                                        >
+                                            Measured
+                                        </button>
+                                        <button 
+                                            style={{flex: 1, padding: '0.5rem', backgroundColor: hrConfig.method === 'estimated' ? '#4f46e5' : '#e5e7eb', color: hrConfig.method === 'estimated' ? 'white' : '#374151', border: 'none', borderRadius: '0.375rem', fontWeight: 600, cursor: 'pointer'}}
+                                            onClick={() => setHrConfig({...hrConfig, method: 'estimated'})}
+                                        >
+                                            Estimated
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {hrConfig.method === 'measured' ? (
+                                    <div className="form-group">
+                                        <label>Max Heart Rate (bpm)</label>
+                                        <input
+                                            type="number"
+                                            value={hrConfig.maxHR}
+                                            onChange={(e) => setHrConfig({...hrConfig, maxHR: parseInt(e.target.value)})}
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="form-group">
+                                        <label>Age (years)</label>
+                                        <input
+                                            type="number"
+                                            value={hrConfig.age}
+                                            onChange={(e) => {
+                                                const age = parseInt(e.target.value);
+                                                setHrConfig({...hrConfig, age, maxHR: 220 - age});
+                                            }}
+                                        />
+                                        <small style={{color: '#6b7280', marginTop: '0.25rem', display: 'block'}}>Estimated Max HR: {220 - hrConfig.age}</small>
+                                    </div>
+                                )}
+
+                                <div className="form-group">
+                                    <label>Resting Heart Rate (bpm)</label>
+                                    <input
+                                        type="number"
+                                        value={hrConfig.restingHR}
+                                        onChange={(e) => setHrConfig({...hrConfig, restingHR: parseInt(e.target.value)})}
+                                    />
+                                </div>
+
+                                <button 
+                                    className="button" 
+                                    onClick={() => setShowHRSetup(false)}
+                                >
+                                    Save & Continue
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Tabs */}
+                    <div className="tabs">
+                        {[
+                            {id: 'training', label: '🏃 Training'},
+                            {id: 'zones', label: '❤️ HR Zones'},
+                            {id: 'nutrition', label: '🥗 Nutrition'},
+                            {id: 'recovery', label: '😴 Recovery'},
+                            {id: 'insights', label: '💡 Insights'}
+                        ].map(tab => (
+                            <button
+                                key={tab.id}
+                                className={`tab-button ${activeTab === tab.id ? 'active' : 'inactive'}`}
+                                onClick={() => setActiveTab(tab.id)}
+                            >
+                                {tab.label}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* ===== TRAINING TAB ===== */}
+                    {activeTab === 'training' && (
+                        <>
+                            <div className="metrics-grid">
+                                <div className="metric-card">
+                                    <div className="metric-label">Total Workouts</div>
+                                    <div className="metric-value">{logs.length}</div>
+                                </div>
+                                <div className="metric-card">
+                                    <div className="metric-label">Total Distance</div>
+                                    <div className="metric-value">{logs.reduce((sum, l) => sum + l.distance, 0).toFixed(1)}km</div>
+                                </div>
+                                <div className="metric-card">
+                                    <div className="metric-label">Best 1km</div>
+                                    <div className="metric-value">{best1km ? best1km.pace : 'N/A'}</div>
+                                </div>
+                                <div className="metric-card" onClick={() => setShowHRSetup(true)} style={{cursor: 'pointer'}}>
+                                    <div className="metric-label">Max HR</div>
+                                    <div className="metric-value">{hrConfig.maxHR} bpm</div>
+                                    <small style={{color: '#6b7280', fontSize: '0.75rem'}}>Click to adjust</small>
+                                </div>
+                            </div>
+
+                            {!showTrainingForm && (
+                                <button className="button" onClick={() => setShowTrainingForm(true)}>
+                                    ➕ Log Training Session
+                                </button>
+                            )}
+
+                            {showTrainingForm && (
+                                <div className="form">
+                                    <h3>Log Training Session</h3>
+                                    <form onSubmit={handleTrainingSubmit}>
+                                        <div className="form-row">
+                                            <div className="form-group">
+                                                <label>Date</label>
+                                                <input type="date" value={trainingFormData.date} onChange={(e) => setTrainingFormData({...trainingFormData, date: e.target.value})} />
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Activity Type</label>
+                                                <select value={trainingFormData.activityType} onChange={(e) => setTrainingFormData({...trainingFormData, activityType: e.target.value})}>
+                                                    <option value="running">🏃 Running</option>
+                                                    <option value="strength">💪 Strength</option>
+                                                    <option value="hyrox-format">🏆 Hyrox Format</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div className="form-row">
+                                            <div className="form-group">
+                                                <label>Workout Type</label>
+                                                <select value={trainingFormData.workoutType} onChange={(e) => setTrainingFormData({...trainingFormData, workoutType: e.target.value})}>
+                                                    <option value="easy-run">Easy Run</option>
+                                                    <option value="tempo-run">Tempo Run</option>
+                                                    <option value="interval">Interval</option>
+                                                    <option value="repeat-1km">1km Repeats</option>
+                                                    <option value="long-run">Long Run</option>
+                                                    <option value="strength">Strength</option>
+                                                    <option value="hyrox-sim">Hyrox Sim</option>
+                                                </select>
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Location</label>
+                                                <input type="text" value={trainingFormData.location} onChange={(e) => setTrainingFormData({...trainingFormData, location: e.target.value})} placeholder="Park, Track, Gym..." />
+                                            </div>
+                                        </div>
+
+                                        <div className="form-row">
+                                            <div className="form-group">
+                                                <label>Distance (km)</label>
+                                                <input type="number" step="0.1" value={trainingFormData.distance} onChange={(e) => setTrainingFormData({...trainingFormData, distance: e.target.value})} placeholder="3.5" />
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Time (min)</label>
+                                                <input type="number" value={trainingFormData.time} onChange={(e) => setTrainingFormData({...trainingFormData, time: e.target.value})} placeholder="25" />
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Avg HR (bpm)</label>
+                                                <input 
+                                                    type="number" 
+                                                    value={trainingFormData.avgHeartRate} 
+                                                    onChange={(e) => setTrainingFormData({...trainingFormData, avgHeartRate: e.target.value})} 
+                                                    placeholder="145" 
+                                                />
+                                                {trainingFormData.avgHeartRate && getZoneFromHR(parseInt(trainingFormData.avgHeartRate)) && (
+                                                    <small style={{color: getZoneFromHR(parseInt(trainingFormData.avgHeartRate)).color, fontWeight: 'bold', marginTop: '0.25rem', display: 'block'}}>
+                                                        Zone: {getZoneFromHR(parseInt(trainingFormData.avgHeartRate)).name}
+                                                    </small>
+                                                )}
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Max HR (bpm)</label>
+                                                <input type="number" value={trainingFormData.maxHeartRate} onChange={(e) => setTrainingFormData({...trainingFormData, maxHeartRate: e.target.value})} placeholder="165" />
+                                            </div>
+                                        </div>
+
+                                        <div className="form-row">
+                                            <div className="form-group">
+                                                <label>Effort (1-10)</label>
+                                                <input type="range" min="1" max="10" value={trainingFormData.effort} onChange={(e) => setTrainingFormData({...trainingFormData, effort: e.target.value})} />
+                                                <div style={{textAlign: 'center', color: '#4f46e5', fontWeight: 'bold'}}>{trainingFormData.effort}/10</div>
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Notes</label>
+                                                <input type="text" value={trainingFormData.notes} onChange={(e) => setTrainingFormData({...trainingFormData, notes: e.target.value})} placeholder="How did it feel?" />
+                                            </div>
+                                        </div>
+
+                                        <div className="form-buttons">
+                                            <button type="submit" style={{backgroundColor: '#10b981', color: 'white'}}>Save</button>
+                                            <button type="button" onClick={() => setShowTrainingForm(false)} style={{backgroundColor: '#6b7280', color: 'white'}}>Cancel</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            )}
+
+                            <h3 style={{fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem'}}>Recent Sessions</h3>
+                            {logs.slice(0, 10).map(log => (
+                                <div key={log.id} className="log-card">
+                                    <div className="log-header">
+                                        <div style={{flex: 1}}>
+                                            <div className="log-badges">
+                                                <span className={`badge ${typeColors[log.workoutType] || 'badge-gray'}`}>
+                                                    {log.workoutType.replace('-', ' ').toUpperCase()}
+                                                </span>
+                                                {log.zone && (
+                                                    <span className="badge" style={{backgroundColor: log.zoneColor, color: 'white'}}>
+                                                        {log.zone.toUpperCase()}
+                                                    </span>
+                                                )}
+                                                <span className="badge badge-gray">{log.activityType.toUpperCase()}</span>
+                                                <small style={{color: '#6b7280'}}>{log.date}</small>
+                                            </div>
+                                            <div className="log-stats">
+                                                <div className="stat">
+                                                    <div className="stat-label">Distance</div>
+                                                    <div className="stat-value">{log.distance}km</div>
+                                                </div>
+                                                <div className="stat">
+                                                    <div className="stat-label">Time</div>
+                                                    <div className="stat-value">{log.time}m</div>
+                                                </div>
+                                                <div className="stat">
+                                                    <div className="stat-label">Pace</div>
+                                                    <div className="stat-value">{log.pace}</div>
+                                                </div>
+                                                <div className="stat">
+                                                    <div className="stat-label">Effort</div>
+                                                    <div className="stat-value">{log.effort}/10</div>
+                                                </div>
+                                                {log.avgHeartRate && (
+                                                    <div className="stat">
+                                                        <div className="stat-label">Avg HR</div>
+                                                        <div className="stat-value">{log.avgHeartRate}</div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            {log.notes && <div className="log-notes">💭 {log.notes}</div>}
+                                        </div>
+                                        <button className="delete-button" onClick={() => deleteLog(log.id, 'training')}>✕</button>
+                                    </div>
+                                </div>
+                            ))}
+                            {logs.length === 0 && <div className="empty-state">No workouts logged yet. Start training! 💪</div>}
+                        </>
+                    )}
+
+                    {/* ===== HR ZONES TAB ===== */}
+                    {activeTab === 'zones' && (
+                        <>
+                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem'}}>
+                                <h2 style={{fontSize: '1.875rem', fontWeight: 'bold'}}>❤️ Training Zones</h2>
+                                <button className="button secondary" onClick={() => setShowHRSetup(true)} style={{width: 'auto', marginBottom: 0}}>
+                                    Adjust Settings
+                                </button>
+                            </div>
+
+                            <div className="metrics-grid" style={{marginBottom: '1.5rem'}}>
+                                {Object.values(zones).map((zone, idx) => (
+                                    <div key={idx} className="zone-card" style={{borderLeftColor: zone.color, backgroundColor: zone.bgColor}}>
+                                        <h4 style={{color: zone.color}}>{zone.name}</h4>
+                                        <p style={{fontSize: '1.5rem', fontWeight: 'bold'}}>{zone.min}-{zone.max}</p>
+                                        <p>{zone.percent} Max HR</p>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="metrics-grid" style={{marginBottom: '1.5rem'}}>
+                                <div className="metric-card">
+                                    <div className="metric-label">Max Heart Rate</div>
+                                    <div className="metric-value" style={{color: '#3b82f6'}}>{hrConfig.maxHR} bpm</div>
+                                </div>
+                                <div className="metric-card">
+                                    <div className="metric-label">Resting Heart Rate</div>
+                                    <div className="metric-value" style={{color: '#10b981'}}>{hrConfig.restingHR} bpm</div>
+                                </div>
+                                <div className="metric-card">
+                                    <div className="metric-label">Heart Rate Reserve</div>
+                                    <div className="metric-value" style={{color: '#f59e0b'}}>{hrConfig.maxHR - hrConfig.restingHR} bpm</div>
+                                </div>
+                            </div>
+
+                            <div className="gradient-card" style={{background: 'linear-gradient(135deg, #fbbf24 0%, #f97316 100%)', marginBottom: '1.5rem'}}>
+                                <h4>🎯 For Your 4-Month Hyrox Goal:</h4>
+                                <p>✓ Month 1-2: Spend 70%+ in Zone 2 (aerobic base building)</p>
+                                <p>✓ Month 2-3: Add tempo work (Zone 3), keep Zone 2 at 50%+</p>
+                                <p>✓ Month 3-4: Increase Zone 4-5 work for speed, maintain Zone 2 base</p>
+                                <p>✓ Always include Zone 1 recovery days between hard sessions</p>
+                            </div>
+
+                            <h3 style={{fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem'}}>📖 Zone Guidelines</h3>
+                            {Object.values(zones).map((zone, idx) => (
+                                <div key={idx} className="zone-card" style={{borderLeftColor: zone.color}}>
+                                    <h4 style={{color: zone.color}}>Zone {idx + 1} - {zone.name} ({zone.min}-{zone.max} bpm)</h4>
+                                    <p>{zone.percent} Max HR intensity</p>
+                                    {idx === 0 && <p>Easy recovery days, active rest, mobility work</p>}
+                                    {idx === 1 && <p>Build aerobic base, long runs, sustainable for hours (TARGET: 60-70% of training)</p>}
+                                    {idx === 2 && <p>Sustained hard efforts, tempo runs, threshold work</p>}
+                                    {idx === 3 && <p>Hard efforts near lactate threshold, short intervals</p>}
+                                    {idx === 4 && <p>Maximum effort, short sprints, high-intensity intervals</p>}
+                                </div>
+                            ))}
+                        </>
+                    )}
+
+                    {/* ===== NUTRITION TAB ===== */}
+                    {activeTab === 'nutrition' && (
+                        <>
+                            <div className="gradient-card" style={{background: 'linear-gradient(135deg, #f97316 0%, #dc2626 100%)'}}>
+                                <h4>Today's Nutrition ({currentDate})</h4>
+                                <div className="metrics-grid" style={{marginTop: '1rem'}}>
+                                    <div style={{backgroundColor: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '0.375rem'}}>
+                                        <p style={{fontSize: '0.875rem', opacity: 0.9}}>Calories</p>
+                                        <p style={{fontSize: '2.25rem', fontWeight: 'bold'}}>{Math.round(todayMacros.calories)}</p>
+                                        <p style={{fontSize: '0.75rem', opacity: 0.75}}>kcal</p>
+                                    </div>
+                                    <div style={{backgroundColor: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '0.375rem'}}>
+                                        <p style={{fontSize: '0.875rem', opacity: 0.9}}>Protein</p>
+                                        <p style={{fontSize: '2.25rem', fontWeight: 'bold'}}>{todayMacros.protein.toFixed(0)}g</p>
+                                        <p style={{fontSize: '0.75rem', opacity: 0.75}}>{((todayMacros.protein * 4 / (todayMacros.calories || 1)) * 100).toFixed(0)}%</p>
+                                    </div>
+                                    <div style={{backgroundColor: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '0.375rem'}}>
+                                        <p style={{fontSize: '0.875rem', opacity: 0.9}}>Carbs</p>
+                                        <p style={{fontSize: '2.25rem', fontWeight: 'bold'}}>{todayMacros.carbs.toFixed(0)}g</p>
+                                        <p style={{fontSize: '0.75rem', opacity: 0.75}}>{((todayMacros.carbs * 4 / (todayMacros.calories || 1)) * 100).toFixed(0)}%</p>
+                                    </div>
+                                    <div style={{backgroundColor: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '0.375rem'}}>
+                                        <p style={{fontSize: '0.875rem', opacity: 0.9}}>Fats</p>
+                                        <p style={{fontSize: '2.25rem', fontWeight: 'bold'}}>{todayMacros.fats.toFixed(0)}g</p>
+                                        <p style={{fontSize: '0.75rem', opacity: 0.75}}>{((todayMacros.fats * 9 / (todayMacros.calories || 1)) * 100).toFixed(0)}%</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {!showNutritionForm && (
+                                <button className="button secondary" onClick={() => setShowNutritionForm(true)}>
+                                    ➕ Log Meal
+                                </button>
+                            )}
+
+                            {showNutritionForm && (
+                                <div className="form">
+                                    <h3>Log Meal</h3>
+                                    <form onSubmit={handleNutritionSubmit}>
+                                        <div className="form-row">
+                                            <div className="form-group">
+                                                <label>Date</label>
+                                                <input type="date" value={nutritionFormData.date} onChange={(e) => setNutritionFormData({...nutritionFormData, date: e.target.value})} />
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Meal Type</label>
+                                                <select value={nutritionFormData.mealType} onChange={(e) => setNutritionFormData({...nutritionFormData, mealType: e.target.value})}>
+                                                    <option value="breakfast">🌅 Breakfast</option>
+                                                    <option value="lunch">🍽️ Lunch</option>
+                                                    <option value="dinner">🌙 Dinner</option>
+                                                    <option value="snack">🍎 Snack</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div className="form-group">
+                                            <label>Food Items</label>
+                                            <textarea value={nutritionFormData.foodItems} onChange={(e) => setNutritionFormData({...nutritionFormData, foodItems: e.target.value})} placeholder="e.g., 2 eggs, 1 slice toast, banana..."></textarea>
+                                        </div>
+
+                                        <div className="form-row">
+                                            <div className="form-group">
+                                                <label>Calories</label>
+                                                <input type="number" value={nutritionFormData.calories} onChange={(e) => setNutritionFormData({...nutritionFormData, calories: e.target.value})} placeholder="500" />
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Protein (g)</label>
+                                                <input type="number" step="0.1" value={nutritionFormData.protein} onChange={(e) => setNutritionFormData({...nutritionFormData, protein: e.target.value})} placeholder="25" />
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Carbs (g)</label>
+                                                <input type="number" step="0.1" value={nutritionFormData.carbs} onChange={(e) => setNutritionFormData({...nutritionFormData, carbs: e.target.value})} placeholder="60" />
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Fats (g)</label>
+                                                <input type="number" step="0.1" value={nutritionFormData.fats} onChange={(e) => setNutritionFormData({...nutritionFormData, fats: e.target.value})} placeholder="15" />
+                                            </div>
+                                        </div>
+
+                                        <div className="form-group">
+                                            <label>Notes</label>
+                                            <input type="text" value={nutritionFormData.notes} onChange={(e) => setNutritionFormData({...nutritionFormData, notes: e.target.value})} placeholder="Post-workout, pre-bed..." />
+                                        </div>
+
+                                        <div className="form-buttons">
+                                            <button type="submit" style={{backgroundColor: '#10b981', color: 'white'}}>Save</button>
+                                            <button type="button" onClick={() => setShowNutritionForm(false)} style={{backgroundColor: '#6b7280', color: 'white'}}>Cancel</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            )}
+
+                            <h3 style={{fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem'}}>Food Log</h3>
+                            {nutritionLogs.slice(0, 15).map(log => (
+                                <div key={log.id} className="log-card">
+                                    <div className="log-header">
+                                        <div style={{flex: 1}}>
+                                            <div style={{marginBottom: '0.75rem'}}>
+                                                <span className="badge badge-gray" style={{marginRight: '0.5rem'}}>{log.mealType.toUpperCase()}</span>
+                                                <small style={{color: '#6b7280'}}>{log.date}</small>
+                                            </div>
+                                            <p style={{fontSize: '0.875rem', marginBottom: '0.75rem'}}>{log.foodItems}</p>
+                                            <div className="log-stats">
+                                                <div className="stat">
+                                                    <div className="stat-label">Cal</div>
+                                                    <div className="stat-value">{Math.round(log.calories)}</div>
+                                                </div>
+                                                <div className="stat">
+                                                    <div className="stat-label">Protein</div>
+                                                    <div className="stat-value">{log.protein}g</div>
+                                                </div>
+                                                <div className="stat">
+                                                    <div className="stat-label">Carbs</div>
+                                                    <div className="stat-value">{log.carbs}g</div>
+                                                </div>
+                                                <div className="stat">
+                                                    <div className="stat-label">Fats</div>
+                                                    <div className="stat-value">{log.fats}g</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button className="delete-button" onClick={() => deleteLog(log.id, 'nutrition')}>✕</button>
+                                    </div>
+                                </div>
+                            ))}
+                            {nutritionLogs.length === 0 && <div className="empty-state">No meals logged yet. Start tracking nutrition! 🥗</div>}
+                        </>
+                    )}
+
+                    {/* ===== RECOVERY TAB ===== */}
+                    {activeTab === 'recovery' && (
+                        <>
+                            {!showRecoveryForm && (
+                                <button className="button secondary" onClick={() => setShowRecoveryForm(true)}>
+                                    ➕ Log Recovery Metrics
+                                </button>
+                            )}
+
+                            {showRecoveryForm && (
+                                <div className="form">
+                                    <h3>Log Recovery Metrics</h3>
+                                    <form onSubmit={handleRecoverySubmit}>
+                                        <div className="form-row">
+                                            <div className="form-group">
+                                                <label>Date</label>
+                                                <input type="date" value={recoveryFormData.date} onChange={(e) => setRecoveryFormData({...recoveryFormData, date: e.target.value})} />
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Sleep Hours</label>
+                                                <input type="number" step="0.5" value={recoveryFormData.sleepHours} onChange={(e) => setRecoveryFormData({...recoveryFormData, sleepHours: e.target.value})} placeholder="8" />
+                                            </div>
+                                        </div>
+
+                                        <div className="form-row">
+                                            <div className="form-group">
+                                                <label>Sleep Quality (1-10)</label>
+                                                <input type="range" min="1" max="10" value={recoveryFormData.sleepQuality} onChange={(e) => setRecoveryFormData({...recoveryFormData, sleepQuality: e.target.value})} />
+                                                <div style={{textAlign: 'center'}}>{recoveryFormData.sleepQuality}/10</div>
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Resting HR (bpm)</label>
+                                                <input type="number" value={recoveryFormData.restingHeartRate} onChange={(e) => setRecoveryFormData({...recoveryFormData, restingHeartRate: e.target.value})} placeholder="60" />
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Soreness (1-10)</label>
+                                                <input type="range" min="1" max="10" value={recoveryFormData.soreness} onChange={(e) => setRecoveryFormData({...recoveryFormData, soreness: e.target.value})} />
+                                                <div style={{textAlign: 'center'}}>{recoveryFormData.soreness}/10</div>
+                                            </div>
+                                        </div>
+
+                                        <div className="form-row">
+                                            <div className="form-group">
+                                                <label>Mood (1-10)</label>
+                                                <input type="range" min="1" max="10" value={recoveryFormData.mood} onChange={(e) => setRecoveryFormData({...recoveryFormData, mood: e.target.value})} />
+                                                <div style={{textAlign: 'center'}}>{recoveryFormData.mood}/10</div>
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Stress Level (1-10)</label>
+                                                <input type="range" min="1" max="10" value={recoveryFormData.stressLevel} onChange={(e) => setRecoveryFormData({...recoveryFormData, stressLevel: e.target.value})} />
+                                                <div style={{textAlign: 'center'}}>{recoveryFormData.stressLevel}/10</div>
+                                            </div>
+                                        </div>
+
+                                        <div className="form-group">
+                                            <label>Notes</label>
+                                            <input type="text" value={recoveryFormData.notes} onChange={(e) => setRecoveryFormData({...recoveryFormData, notes: e.target.value})} placeholder="Recovery activities, injuries, feelings..." />
+                                        </div>
+
+                                        <div className="form-buttons">
+                                            <button type="submit" style={{backgroundColor: '#10b981', color: 'white'}}>Save</button>
+                                            <button type="button" onClick={() => setShowRecoveryForm(false)} style={{backgroundColor: '#6b7280', color: 'white'}}>Cancel</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            )}
+
+                            <h3 style={{fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem'}}>Recovery History</h3>
+                            {recoveryLogs.slice(0, 10).map(log => (
+                                <div key={log.id} className="log-card">
+                                    <div className="log-header">
+                                        <div style={{flex: 1}}>
+                                            <small style={{color: '#6b7280', marginBottom: '0.75rem', display: 'block'}}>{log.date}</small>
+                                            <div className="log-stats">
+                                                <div className="stat">
+                                                    <div className="stat-label">Sleep</div>
+                                                    <div className="stat-value">{log.sleepHours}h</div>
+                                                </div>
+                                                <div className="stat">
+                                                    <div className="stat-label">Quality</div>
+                                                    <div className="stat-value">{log.sleepQuality}/10</div>
+                                                </div>
+                                                {log.restingHeartRate && (
+                                                    <div className="stat">
+                                                        <div className="stat-label">Rest HR</div>
+                                                        <div className="stat-value">{log.restingHeartRate}</div>
+                                                    </div>
+                                                )}
+                                                <div className="stat">
+                                                    <div className="stat-label">Soreness</div>
+                                                    <div className="stat-value">{log.soreness}/10</div>
+                                                </div>
+                                                <div className="stat">
+                                                    <div className="stat-label">Mood</div>
+                                                    <div className="stat-value">{log.mood}/10</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button className="delete-button" onClick={() => deleteLog(log.id, 'recovery')}>✕</button>
+                                    </div>
+                                </div>
+                            ))}
+                            {recoveryLogs.length === 0 && <div className="empty-state">No recovery data logged yet. Track your rest! 😴</div>}
+                        </>
+                    )}
+
+                    {/* ===== INSIGHTS TAB ===== */}
+                    {activeTab === 'insights' && (
+                        <>
+                            <div className="summary-grid">
+                                <div className="gradient-card" style={{background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)'}}>
+                                    <h4>🎯 Performance Summary</h4>
+                                    <p>✓ Workouts: <span style={{fontWeight: 'bold', fontSize: '1.5rem'}}>{logs.length}</span></p>
+                                    <p>✓ Distance: <span style={{fontWeight: 'bold', fontSize: '1.5rem'}}>{logs.reduce((sum, l) => sum + l.distance, 0).toFixed(1)}km</span></p>
+                                    <p>✓ Best 1km: <span style={{fontWeight: 'bold', fontSize: '1.5rem'}}>{best1km ? best1km.pace : 'N/A'}</span></p>
+                                </div>
+
+                                <div className="gradient-card" style={{background: 'linear-gradient(135deg, #10b981 0%, #06b6d4 100%)'}}>
+                                    <h4>💡 Training Tips</h4>
+                                    <p>✓ Spend ~70% in Zone 2 for base building</p>
+                                    <p>✓ 1-2 hard workouts per week in Zone 4-5</p>
+                                    <p>✓ Include Zone 1 recovery after hard sessions</p>
+                                    <p>✓ Track RHR (lower = better recovery)</p>
+                                </div>
+                            </div>
+
+                            <div className="metric-card">
+                                <h3 style={{fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '1rem'}}>📊 Weekly Summary</h3>
+                                <div className="summary-grid">
+                                    <div>
+                                        <h4 style={{fontWeight: 'bold', marginBottom: '0.75rem'}}>Training</h4>
+                                        <p style={{fontSize: '0.875rem', marginBottom: '0.5rem'}}>Workouts: <span style={{fontWeight: 'bold', float: 'right'}}>{logs.length}</span></p>
+                                        <p style={{fontSize: '0.875rem', marginBottom: '0.5rem'}}>Running: <span style={{fontWeight: 'bold', float: 'right'}}>{logs.filter(l => l.activityType === 'running').length}</span></p>
+                                        <p style={{fontSize: '0.875rem', marginBottom: '0.5rem'}}>Strength: <span style={{fontWeight: 'bold', float: 'right'}}>{logs.filter(l => l.activityType === 'strength').length}</span></p>
+                                        <p style={{fontSize: '0.875rem', borderTop: '1px solid #e5e7eb', paddingTop: '0.5rem', marginTop: '0.5rem'}}>Distance: <span style={{fontWeight: 'bold', float: 'right'}}>{logs.reduce((sum, l) => sum + l.distance, 0).toFixed(1)}km</span></p>
+                                    </div>
+                                    <div>
+                                        <h4 style={{fontWeight: 'bold', marginBottom: '0.75rem'}}>Recovery</h4>
+                                        <p style={{fontSize: '0.875rem', marginBottom: '0.5rem'}}>Avg Sleep: <span style={{fontWeight: 'bold', float: 'right'}}>{(recoveryLogs.reduce((sum, l) => sum + l.sleepHours, 0) / (recoveryLogs.length || 1)).toFixed(1)}h</span></p>
+                                        <p style={{fontSize: '0.875rem', marginBottom: '0.5rem'}}>Avg Quality: <span style={{fontWeight: 'bold', float: 'right'}}>{(recoveryLogs.reduce((sum, l) => sum + l.sleepQuality, 0) / (recoveryLogs.length || 1)).toFixed(1)}/10</span></p>
+                                        <p style={{fontSize: '0.875rem', marginBottom: '0.5rem'}}>Avg Mood: <span style={{fontWeight: 'bold', float: 'right'}}>{(recoveryLogs.reduce((sum, l) => sum + l.mood, 0) / (recoveryLogs.length || 1)).toFixed(1)}/10</span></p>
+                                        <p style={{fontSize: '0.875rem', borderTop: '1px solid #e5e7eb', paddingTop: '0.5rem', marginTop: '0.5rem'}}>Avg Stress: <span style={{fontWeight: 'bold', float: 'right'}}>{(recoveryLogs.reduce((sum, l) => sum + l.stressLevel, 0) / (recoveryLogs.length || 1)).toFixed(1)}/10</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </>
+                    )}
+                </div>
+            );
+        }
+
+        ReactDOM.createRoot(document.getElementById('root')).render(<HyroxApp />);
+    </script>
+</body>
+</html>
