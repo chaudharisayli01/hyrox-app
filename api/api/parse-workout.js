@@ -60,7 +60,7 @@ Be realistic with estimates. Return valid JSON only.`;
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
-        'anthropic-version': '2024-06-15'  // ✅ FIX #1: Updated API version
+        'anthropic-version': '2023-06-01'  // ✅ VERIFIED WORKING VERSION
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
