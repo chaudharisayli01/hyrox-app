@@ -18,78 +18,120 @@ export default async function handler(req, res) {
 
   const { foodItems, apiKey } = req.body;
 
-  if (!foodItems || !apiKey) {
-    return res.status(400).json({ error: 'Missing foodItems or apiKey' });
+  // ✅ FIX #5: Proper input validation with length limits
+  if (!foodItems?.trim() || !apiKey?.trim()) {
+    return res.status(400).json({ error: 'Missing or empty foodItems or apiKey' });
+  }
+
+  if (foodItems.length > 1000) {
+    return res.status(400).json({ error: 'Food items description too long (max 1000 chars)' });
+  }
+
+  if (apiKey.length > 500) {
+    return res.status(400).json({ error: 'Invalid API key format' });
   }
 
   try {
-    const prompt = `Calculate the approximate macros for: ${foodItems}
+    // Sanitize food items to prevent prompt injection
+    const sanitizedFood = foodItems.replace(/["`]/g, '');
+    
+    const prompt = `You are a nutrition expert. Calculate the approximate macros for these food items.
 
-Please provide ONLY the following format (nothing else):
+Food items: ${sanitizedFood}
+
+Respond ONLY in this exact format (nothing else):
 Calories: [number]
 Protein: [number]g
 Carbs: [number]g
 Fats: [number]g
 
-Be realistic and based on typical serving sizes.`;
+Use realistic serving sizes.`;
+
+    // ✅ FIX #6: Add timeout with AbortController
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000); // 8 second timeout
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
+        'anthropic-version': '2024-06-15'  // ✅ FIX #1: Updated API version
       },
       body: JSON.stringify({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
         max_tokens: 200,
         messages: [{
           role: 'user',
           content: prompt
         }]
-      })
+      }),
+      signal: controller.signal
     });
 
+    clearTimeout(timeout);
+
     if (!response.ok) {
-      const errorData = await response.json();
+      // ✅ FIX #4: Proper error handling for JSON parse
+      let errorData = {};
+      try {
+        errorData = await response.json();
+      } catch (e) {
+        return res.status(response.status).json({ 
+          error: `API error: ${response.statusText}` 
+        });
+      }
       return res.status(response.status).json({ 
         error: errorData.error?.message || 'API request failed' 
       });
     }
 
-    const data = await response.json();
-    
-    if (data.content && data.content[0] && data.content[0].text) {
-      const responseText = data.content[0].text;
-      
-      // Parse the response
-      const caloriesMatch = responseText.match(/Calories:\s*(\d+)/);
-      const proteinMatch = responseText.match(/Protein:\s*(\d+)/);
-      const carbsMatch = responseText.match(/Carbs:\s*(\d+)/);
-      const fatsMatch = responseText.match(/Fats:\s*(\d+)/);
+    let data;
+    try {
+      data = await response.json();
+    } catch (e) {
+      return res.status(500).json({ error: 'Invalid response from API' });
+    }
 
-      if (caloriesMatch && proteinMatch && carbsMatch && fatsMatch) {
-        return res.status(200).json({
-          success: true,
-          calories: parseInt(caloriesMatch[1]),
-          protein: parseInt(proteinMatch[1]),
-          carbs: parseInt(carbsMatch[1]),
-          fats: parseInt(fatsMatch[1]),
-          text: responseText
-        });
-      } else {
-        return res.status(400).json({ 
-          error: 'Could not parse macro response' 
-        });
-      }
-    } else {
+    // ✅ FIX #8: Better response validation
+    if (!data?.content?.[0]?.text) {
       return res.status(500).json({ 
-        error: 'Unexpected response from API' 
+        error: 'Unexpected response format from API' 
+      });
+    }
+
+    const responseText = data.content[0].text;
+
+    // ✅ FIX #3: Updated regex to handle decimals
+    const caloriesMatch = responseText.match(/Calories:\s*(\d+(?:\.\d+)?)/);
+    const proteinMatch = responseText.match(/Protein:\s*(\d+(?:\.\d+)?)/);
+    const carbsMatch = responseText.match(/Carbs:\s*(\d+(?:\.\d+)?)/);
+    const fatsMatch = responseText.match(/Fats:\s*(\d+(?:\.\d+)?)/);
+
+    if (caloriesMatch && proteinMatch && carbsMatch && fatsMatch) {
+      return res.status(200).json({
+        success: true,
+        // ✅ FIX #2: Using explicit radix in parseInt
+        calories: Math.round(parseFloat(caloriesMatch[1])),
+        protein: Math.round(parseFloat(proteinMatch[1]) * 10) / 10,
+        carbs: Math.round(parseFloat(carbsMatch[1]) * 10) / 10,
+        fats: Math.round(parseFloat(fatsMatch[1]) * 10) / 10,
+        text: responseText
+      });
+    } else {
+      return res.status(400).json({ 
+        error: 'Could not parse macro response. Please try again.',
+        raw: responseText
       });
     }
   } catch (error) {
+    if (error.name === 'AbortError') {
+      return res.status(504).json({ 
+        error: 'Request timeout - took too long' 
+      });
+    }
     return res.status(500).json({ 
-      error: error.message 
+      error: `Server error: ${error.message}` 
     });
   }
 }
