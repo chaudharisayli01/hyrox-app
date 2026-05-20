@@ -549,7 +549,7 @@
                 }
             }, [logs, nutritionLogs, recoveryLogs, hrConfig, apiKey]);
 
-            // Calculate macros with Anthropic API
+            // Calculate macros via Vercel API (CORS-safe!)
             const calculateMacrosWithAI = async () => {
                 if (!apiKey) {
                     alert('Please set your Anthropic API key first');
@@ -564,62 +564,34 @@
 
                 setCalculatingMacros(true);
                 try {
-                    const prompt = `Calculate the approximate macros for: ${nutritionFormData.foodItems}
-
-Please provide ONLY the following format (nothing else):
-Calories: [number]
-Protein: [number]g
-Carbs: [number]g
-Fats: [number]g
-
-Be realistic and based on typical serving sizes.`;
-
-                    const response = await fetch('https://api.anthropic.com/v1/messages', {
+                    const response = await fetch('/api/calculate-macros', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'x-api-key': apiKey,
-                            'anthropic-version': '2023-06-01'
                         },
                         body: JSON.stringify({
-                            model: 'claude-3-5-sonnet-20241022',
-                            max_tokens: 200,
-                            messages: [{
-                                role: 'user',
-                                content: prompt
-                            }]
+                            foodItems: nutritionFormData.foodItems,
+                            apiKey: apiKey
                         })
                     });
 
                     if (!response.ok) {
                         const errorData = await response.json();
-                        throw new Error(errorData.error?.message || 'API request failed. Check your API key.');
+                        throw new Error(errorData.error || 'API request failed');
                     }
 
                     const data = await response.json();
                     
-                    if (data.content && data.content[0] && data.content[0].text) {
-                        const responseText = data.content[0].text;
-                        
-                        // Parse the response
-                        const caloriesMatch = responseText.match(/Calories:\s*(\d+)/);
-                        const proteinMatch = responseText.match(/Protein:\s*(\d+)/);
-                        const carbsMatch = responseText.match(/Carbs:\s*(\d+)/);
-                        const fatsMatch = responseText.match(/Fats:\s*(\d+)/);
-
-                        if (caloriesMatch && proteinMatch && carbsMatch && fatsMatch) {
-                            setAiResult({
-                                calories: caloriesMatch[1],
-                                protein: proteinMatch[1],
-                                carbs: carbsMatch[1],
-                                fats: fatsMatch[1],
-                                text: responseText
-                            });
-                        } else {
-                            alert('Could not parse macro response. Please enter manually.');
-                        }
+                    if (data.success) {
+                        setAiResult({
+                            calories: data.calories,
+                            protein: data.protein,
+                            carbs: data.carbs,
+                            fats: data.fats,
+                            text: data.text
+                        });
                     } else {
-                        alert('Unexpected response from API');
+                        alert('Error: ' + (data.error || 'Unknown error'));
                     }
                 } catch (error) {
                     alert('Error: ' + error.message);
@@ -638,6 +610,59 @@ Be realistic and based on typical serving sizes.`;
                         fats: aiResult.fats
                     });
                     setAiResult(null);
+                }
+            };
+
+            // Parse workout description via Vercel API
+            const parseWorkoutWithAI = async () => {
+                if (!apiKey) {
+                    alert('Please set your Anthropic API key first');
+                    setShowApiKeyModal(true);
+                    return;
+                }
+
+                if (!trainingFormData.notes) {
+                    alert('Please enter a workout description (in notes field)');
+                    return;
+                }
+
+                setCalculatingMacros(true);
+                try {
+                    const response = await fetch('/api/parse-workout', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            workoutDescription: trainingFormData.notes,
+                            apiKey: apiKey
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || 'API request failed');
+                    }
+
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        // Auto-fill the form with parsed workout data
+                        setTrainingFormData({
+                            ...trainingFormData,
+                            activityType: data.activityType || 'running',
+                            workoutType: data.workoutType || 'easy-run',
+                            distance: data.estimatedDistance || '',
+                            time: data.estimatedTime || ''
+                        });
+                        alert(`✅ Workout parsed!\n\nActivity: ${data.activityType}\nType: ${data.workoutType}\nDistance: ${data.estimatedDistance || 'N/A'}km\nTime: ${data.estimatedTime || 'N/A'}min\n\nAdjust as needed and save!`);
+                    } else {
+                        alert('Error: ' + (data.error || 'Could not parse workout'));
+                    }
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                } finally {
+                    setCalculatingMacros(false);
                 }
             };
 
@@ -1086,10 +1111,22 @@ Be realistic and based on typical serving sizes.`;
                                                 <div style={{textAlign: 'center', color: '#4f46e5', fontWeight: 'bold'}}>{trainingFormData.effort}/10</div>
                                             </div>
                                             <div className="form-group">
-                                                <label>Notes</label>
-                                                <input type="text" value={trainingFormData.notes} onChange={(e) => setTrainingFormData({...trainingFormData, notes: e.target.value})} placeholder="How did it feel?" />
+                                                <label>Notes / Workout Description</label>
+                                                <input type="text" value={trainingFormData.notes} onChange={(e) => setTrainingFormData({...trainingFormData, notes: e.target.value})} placeholder="e.g., 40 squats, 1km run, 40 lunges..." />
                                             </div>
                                         </div>
+
+                                        {trainingFormData.notes && (
+                                            <button 
+                                                type="button" 
+                                                className="button secondary"
+                                                onClick={parseWorkoutWithAI}
+                                                disabled={calculatingMacros}
+                                                style={{width: '100%', marginBottom: '1rem'}}
+                                            >
+                                                {calculatingMacros ? <span className="loading">⏳ Parsing...</span> : '🎯 Parse Workout with AI'}
+                                            </button>
+                                        )}
 
                                         <div className="form-buttons">
                                             <button type="submit" style={{backgroundColor: '#10b981', color: 'white'}}>Save</button>
